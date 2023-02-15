@@ -13,6 +13,8 @@ function App() {
   const [userAddress, setUserAddress] = useState('')
   const [outputHTML, setOutputHTML] = useState('')
   const [display, setDisplay] = useState('block')
+  const [word, setWord] = useState('')
+  const [error, setError] = useState('')
 
   async function init(e) {
     if(e) e.preventDefault()
@@ -42,15 +44,18 @@ function App() {
       res.push(value)
 
       html += `<span style="background-color: ${colors[value]}; padding-right: 2.5%; padding-left: 2.5%; border: 1px; font-size: 200%;">${toNumber[guess[i]]}</span>`
+      //setOutputHTML(html)
+      
+      setTimeout(setOutputHTML(html),1000 + (1000 * i))
     }
 
     html += `<br/>`
-    setOutputHTML(html)
-    document.getElementById('outputHTML').innerHTML = outputHTML
+    //setOutputHTML(html)
+    //document.getElementById('outputHTML').innerHTML = outputHTML
 
   
     if(instances(res, 1) === 5) {
-      alert(`You won on attempt ${attempts}`)
+      //alert(`You won on attempt ${attempts}`)
     }
   }
 
@@ -122,33 +127,46 @@ function App() {
   //   return nums
   // }
 
-  async function guess() {
+  async function guess(e) {
+    e.preventDefault()
     await init()
-
-    const word = document.getElementById('word').value.toLowerCase()
-    let nums = []
-    for(let i = 0; i < word.length; i++) {
-      nums.push(toNumber.indexOf(word[i]))
+    try{
+      const word = document.getElementById('word').value.toLowerCase()
+      let nums = []
+      for(let i = 0; i < word.length; i++) {
+        nums.push(toNumber.indexOf(word[i]))
+      }
+      console.log(nums)
+      const tx = await contract.connect(signer).guess(nums, {value: 0})
+      //await tx.wait(5)
+      console.log(tx)
+    } catch(error) {
+      console.log(error.message)
+      if(error.message.includes('(')) {
+        let message = error.message
+        let index = message.indexOf('(')
+        message = message.substr(0, index)
+        setError(message)
+      } else {
+        setError(error.message)
+      }
     }
-    console.log(nums)
-    const tx = await contract.connect(signer).guess(nums, {value: 0})
-    await tx.wait(5)
-    console.log(tx)
+
   }
 
   return (
     <div className="App">
       <div>
-        <h1 style={{marginTop: '-100%'}}>WORDL3</h1>
+        <h1 style={{marginTop: '-100%', color: 'whitesmoke'}}>WORDL3</h1>
+        <span style={{color: 'red'}}>{error}</span>
+
       </div>
       <div dangerouslySetInnerHTML={{__html: outputHTML}}></div>
-      {/* <span style={{backgroundColor: 'red'}}>W</span>
-      <span style={{backgroundColor: 'green'}}>O</span>
-      <span style={{backgroundColor: 'yellow'}}>R</span>
-      <span style={{backgroundColor: 'black'}}>D</span> */}
       <div className="card">
-      <input type='text' placeholder='5 Letter Word. . .' id='word'></input>
-      <button onClick={() => guess()}>Submit</button>
+        <form onSubmit={(e) => guess(e)}>
+          <input type='text' placeholder='5 Letter Word. . .' id='word'></input><br/>
+          <button type='submit'>Submit</button>
+        </form>
       </div>
       
     </div>
