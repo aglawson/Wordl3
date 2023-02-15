@@ -1,19 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import {ethers, toBigInt} from 'ethers'
 import {abi, toNumber, colors} from './config' 
 
-const contractAddress = '0xC0a801997Ff1444D1bB7CfE925BF7d8BBfF7Cc5f'
+const contractAddress = {
+  'polygon': '0x2b3291ADBe63A94C3befaaa3645bC646d962EcCa',
+  'goerli': '0x1B86aAA637AeC2fe541Ed64d26aA4D0698605D09'
+}
 let provider, signer, contract
 
 function App() {
+
   provider = new ethers.BrowserProvider(window.ethereum)
-  contract = new ethers.Contract(contractAddress, abi, provider)
+  contract = new ethers.Contract(contractAddress['goerli'], abi, provider)
+
 
   const [userAddress, setUserAddress] = useState('')
   const [outputHTML, setOutputHTML] = useState('')
   const [display, setDisplay] = useState('block')
-  const [word, setWord] = useState('')
+  const [finalWord, setFinalWord] = useState('')
+  let word = ''
   const [error, setError] = useState('')
 
   async function init(e) {
@@ -26,6 +32,8 @@ function App() {
 
     await provider.send("eth_requestAccounts", [])
     signer = await provider.getSigner()
+    contract = new ethers.Contract(contractAddress[document.getElementById('network').value], abi, provider)
+
 
     await enforceNetwork((await provider.getNetwork()).chainId)
 
@@ -55,7 +63,7 @@ function App() {
 
   
     if(instances(res, 1) === 5) {
-      //alert(`You won on attempt ${attempts}`)
+      
     }
   }
 
@@ -72,42 +80,20 @@ function App() {
 
   // Begin listening for event
   contract.on("guessed", (player, guess, result, attempts, won) => {
-    console.log(player, guess, result, attempts)
+    //console.log(player, guess, result, attempts)
     handleEvent(player, guess, result, attempts)
   });
 
-  async function getPastResults() {
-    // Query all time for any transfer to ethers.eth
-    // let filter = contract.filters.guessed(userAddress)
-    // let events = await contract.queryFilter(filter)
-    // console.log(events)
-    // Calculate the timestamp for 24 hours ago
-    const now = Math.floor(Date.now() / 1000);
-    const twentyFourHoursAgo = now - 24 * 60 * 60;
-    let tfha = ethers.encodeBytes32String(twentyFourHoursAgo.toString())
-    // Create a filter for events emitted in the last 24 hours
-    const filter = {
-      address: contractAddress,
-      fromBlock: 0,
-      toBlock: "latest",
-      topics: [],
-      blockhash: null,
-    };
-
-    // Add a filter for the timestamp of the event
-    const eventName = "guessed";
-    const eventTopic = ethers.id(eventName);
-    filter.topics.push(eventTopic);
-    filter.topics.push(null);
-    filter.topics.push(ethers.zeroPadBytes(tfha, 32));
-    
-    // Retrieve the events that match the filter
-    const events = await contract.queryFilter("guessed");
-    console.log(events);
-  }
-
   async function enforceNetwork(current) {
-    if(parseInt(current) != 5) {
+    const network = document.getElementById('network').value;
+    if(network === 'polygon') {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{
+            chainId: "0x89"
+        }]
+      });
+    } else if(network === 'goerli') {
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{
@@ -128,13 +114,13 @@ function App() {
   // }
 
   async function guess(e) {
-    e.preventDefault()
+    if(e) e.preventDefault()
     await init()
     try{
-      const word = document.getElementById('word').value.toLowerCase()
+      const wrd = finalWord.toLowerCase()
       let nums = []
-      for(let i = 0; i < word.length; i++) {
-        nums.push(toNumber.indexOf(word[i]))
+      for(let i = 0; i < wrd.length; i++) {
+        nums.push(toNumber.indexOf(wrd[i]))
       }
       console.log(nums)
       const tx = await contract.connect(signer).guess(nums, {value: 0})
@@ -151,21 +137,71 @@ function App() {
         setError(error.message)
       }
     }
-
   }
+
+  // addEventListener('keydown', ({code}) => {
+  //   word = finalWord
+  //   function lock () {
+  //     if(word.length === 5) {
+  //       return true 
+  //     } else {
+  //       return false 
+  //     }
+  //   }
+  
+  //   if(lock()) return
+  //   console.log(code)
+  //   console.log(word.length)
+  //   if(code == 'Backspace') {
+  //     let w = word.slice(0, word.length - 1)
+  //     setWord(w)
+  //   }
+
+  //   if(word.length < 5 && code.includes('Key') && !lock()) {
+  //     console.log(word.length)
+  //     // let w = word
+  //     // w += code.slice(3, code.length)
+  //     setWord(finalWord + code.slice(3, code.length).toLowerCase())
+  //   }
+  //   if(code == 'Enter') {
+  //     guess()
+  //   }
+  // })
+
+  // const [text, setText] = useState('');
+
+  // useEffect(() => {
+  //   document.addEventListener('keypress', handleKeyPress);
+  //   return () => {
+  //     document.removeEventListener('keypress', handleKeyPress);
+  //   };
+  // }, []);
+
+  // const handleKeyPress = (event) => {
+  //   const keyPressed = event.key;
+  //   if (text.length < 5 && /^[a-zA-Z]+$/.test(keyPressed)) {
+  //     setText(text + keyPressed);
+  //   }
+  // };
 
   return (
     <div className="App">
       <div>
         <h1 style={{marginTop: '-100%', color: 'whitesmoke'}}>WORDL3</h1>
+        <p style={{color: 'whitesmoke'}}>Select a network to play on</p>
+        <select id='network' defaultValue='goerli' onChange={e => init(e)}>
+          <option value='goerli'>Goerli</option>
+          <option value='polygon'>Polygon</option>
+        </select>
         <span style={{color: 'red'}}>{error}</span>
 
       </div>
       <div dangerouslySetInnerHTML={{__html: outputHTML}}></div>
       <div className="card">
         <form onSubmit={(e) => guess(e)}>
-          <input type='text' placeholder='5 Letter Word. . .' id='word'></input><br/>
-          <button type='submit'>Submit</button>
+          <br/><div style={{color: 'white'}}>{finalWord.toUpperCase()}</div><br/>
+          <input type='text' id='word' onChange={() => setFinalWord(document.getElementById('word').value)} maxLength="5"></input>
+          <br/><button type='submit'>Submit</button>
         </form>
       </div>
       
