@@ -125,7 +125,7 @@ function App() {
   async function guess() {
     await init()
 
-    const word = document.getElementById('word').value
+    const word = document.getElementById('word').value.toLowerCase()
     let nums = []
     for(let i = 0; i < word.length; i++) {
       nums.push(toNumber.indexOf(word[i]))
