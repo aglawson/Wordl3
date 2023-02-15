@@ -3,7 +3,7 @@ import './App.css'
 import {ethers, toBigInt} from 'ethers'
 import {abi, toNumber, colors} from './config' 
 
-const contractAddress = '0x1e6b0A6DF08602C6039f030cC4D89C44495A7bf1'
+const contractAddress = '0xC0a801997Ff1444D1bB7CfE925BF7d8BBfF7Cc5f'
 let provider, signer, contract
 
 function App() {
@@ -150,7 +150,6 @@ function App() {
       <input type='text' placeholder='5 Letter Word. . .' id='word'></input>
       <button onClick={() => guess()}>Submit</button>
       </div>
-      <button onClick={() => init()} style={{display: display}}>Connect Wallet</button>
       
     </div>
   )
