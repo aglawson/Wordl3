@@ -12,14 +12,12 @@ let provider, signer, contract
 function App() {
 
   provider = new ethers.BrowserProvider(window.ethereum)
-  contract = new ethers.Contract(contractAddress['goerli'], abi, provider)
-
+  contract = new ethers.Contract(contractAddress['polygon'], abi, provider)
 
   const [userAddress, setUserAddress] = useState('')
   const [outputHTML, setOutputHTML] = useState('')
   const [display, setDisplay] = useState('block')
   const [finalWord, setFinalWord] = useState('')
-  let word = ''
   const [error, setError] = useState('')
 
   async function init(e) {
@@ -32,8 +30,7 @@ function App() {
 
     await provider.send("eth_requestAccounts", [])
     signer = await provider.getSigner()
-    contract = new ethers.Contract(contractAddress[document.getElementById('network').value], abi, provider)
-
+    contract = new ethers.Contract(contractAddress['polygon'], abi, provider)
 
     await enforceNetwork((await provider.getNetwork()).chainId)
 
@@ -54,11 +51,11 @@ function App() {
       html += `<span style="background-color: ${colors[value]}; padding-right: 2.5%; padding-left: 2.5%; border: 1px; font-size: 200%;">${toNumber[guess[i]]}</span>`
       //setOutputHTML(html)
       
-      setTimeout(setOutputHTML(html),1000 + (1000 * i))
     }
 
     html += `<br/>`
-    //setOutputHTML(html)
+
+    setOutputHTML(html)
     //document.getElementById('outputHTML').innerHTML = outputHTML
 
   
@@ -80,38 +77,28 @@ function App() {
 
   // Begin listening for event
   contract.on("guessed", (player, guess, result, attempts, won) => {
-    //console.log(player, guess, result, attempts)
     handleEvent(player, guess, result, attempts)
   });
 
   async function enforceNetwork(current) {
-    const network = document.getElementById('network').value;
-    if(network === 'polygon') {
+    const network = (await provider.getNetwork()).chainId
+    if(network !== 137) {
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{
             chainId: "0x89"
         }]
       });
-    } else if(network === 'goerli') {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{
-            chainId: "0x5"
-        }]
-      });
-    }
+    } 
+    // else if(network === 'goerli') {
+    //   await window.ethereum.request({
+    //     method: "wallet_switchEthereumChain",
+    //     params: [{
+    //         chainId: "0x5"
+    //     }]
+    //   });
+    // }
   }
-
-  // function toNumber(word) {
-  //   let nums = []
-
-  //   for(let i = 0; i < 5; i++) {
-  //     nums.push(toNumber[word[i]])
-  //   }
-    
-  //   return nums
-  // }
 
   async function guess(e) {
     if(e) e.preventDefault()
@@ -138,63 +125,13 @@ function App() {
       }
     }
   }
-
-  // addEventListener('keydown', ({code}) => {
-  //   word = finalWord
-  //   function lock () {
-  //     if(word.length === 5) {
-  //       return true 
-  //     } else {
-  //       return false 
-  //     }
-  //   }
   
-  //   if(lock()) return
-  //   console.log(code)
-  //   console.log(word.length)
-  //   if(code == 'Backspace') {
-  //     let w = word.slice(0, word.length - 1)
-  //     setWord(w)
-  //   }
-
-  //   if(word.length < 5 && code.includes('Key') && !lock()) {
-  //     console.log(word.length)
-  //     // let w = word
-  //     // w += code.slice(3, code.length)
-  //     setWord(finalWord + code.slice(3, code.length).toLowerCase())
-  //   }
-  //   if(code == 'Enter') {
-  //     guess()
-  //   }
-  // })
-
-  // const [text, setText] = useState('');
-
-  // useEffect(() => {
-  //   document.addEventListener('keypress', handleKeyPress);
-  //   return () => {
-  //     document.removeEventListener('keypress', handleKeyPress);
-  //   };
-  // }, []);
-
-  // const handleKeyPress = (event) => {
-  //   const keyPressed = event.key;
-  //   if (text.length < 5 && /^[a-zA-Z]+$/.test(keyPressed)) {
-  //     setText(text + keyPressed);
-  //   }
-  // };
-
   return (
     <div className="App">
       <div>
         <h1 style={{marginTop: '-100%', color: 'whitesmoke'}}>WORDL3</h1>
         <p style={{color: 'whitesmoke'}}>Select a network to play on</p>
-        <select id='network' defaultValue='goerli' onChange={e => init(e)}>
-          <option value='goerli'>Goerli</option>
-          <option value='polygon'>Polygon</option>
-        </select>
         <span style={{color: 'red'}}>{error}</span>
-
       </div>
       <div dangerouslySetInnerHTML={{__html: outputHTML}}></div>
       <div className="card">
