@@ -294,7 +294,8 @@ export const toNumber = [
 ]
 
 export const colors = [
-  'red',
-  'green',
-  'yellow'
+  'linear-gradient(to right, #d03068, #d63a3a)',
+  'linear-gradient(to right, #30d050, #3ad63d)',
+  'linear-gradient(to right, #d09d30, #eeea16)',
+  'linear-gradient(to right, #30CFD0, #c43ad6)'
 ]

@@ -15,13 +15,32 @@ function App() {
   contract = new ethers.Contract(contractAddress['polygon'], abi, provider)
   const [userAddress, setUserAddress] = useState('')
   const [outputHTML, setOutputHTML] = useState('')
-  const [finalWord, setFinalWord] = useState('')
+  const [finalWord, setFinalWord] = useState([])
   const [error, setError] = useState('')
-
+  const [att, setAtt] = useState([])
+  const [userMessage, setUserMessage] = useState(`Begin typing when you're ready ${String.fromCodePoint(0x1F600)}`)
+  console.log( String.fromCodePoint(0x1F600))
+  const attempts = useRef([])
   const htmlRef = useRef(outputHTML)
   const accountedRef = useRef([])
 
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    inputRef.current.focus();
+  }, []);
+
+  const handleBlur = () => {
+    inputRef.current.focus();
+  };
+
+  useEffect(() => {
+    // Call your function here
+    init();
+  }, []); 
+
   async function getHistoric(e) {
+    console.log('gh')
     if(e)e.preventDefault()
     let filter = contract.filters.guessed(await signer.getAddress())
     let events = await contract.queryFilter(filter)
@@ -31,7 +50,7 @@ function App() {
     for(let i = 0; i < events.length; i++) {
       let block = await provider.getBlock(events[i].blockHash)
       if(block.timestamp > startTime) {
-        handleEvent(events[i].args[1], events[i].args[2], e ? e : '')
+        handleEvent(events[i].args[1], events[i].args[2], e ? e : undefined)
       }
     }
   }
@@ -55,20 +74,26 @@ function App() {
   }
 
   function handleEvent(guess, result, e) {
-    if(e) e.preventDefault()
+    //if(e) e.preventDefault()
     let html = outputHTML
 
     if(accountedRef.current.includes(guess.toString())) return
     accountedRef.current.push(guess.toString())
     for(let i = 0; i < result.length; i++) {
       let value = parseInt(result[i])
-
-      html += `<span style="background-color: ${colors[value]}; padding-right: 2.5%; padding-left: 2.5%; border: 1px; font-size: 200%;">${toNumber[guess[i]]}</span>`
+      attempts.current.push({guess: toNumber[guess[i]], result: value})
+      html += `<span class='card' style="background-color: ${colors[value]}; padding-right: 2.5%; padding-left: 2.5%; border: 1px; font-size: 200%;">${toNumber[guess[i]]}</span>`
     }
+    setAtt(attempts.current)
+    
     html += `<br/>`
     if(!htmlRef.current.includes(html)){
       htmlRef.current += html
       setOutputHTML(htmlRef.current)
+    }
+
+    if(instances(result, '1') === 5) {
+      setUserMessage(`You Won!! 🥳`)
     }
   }
 
@@ -85,8 +110,8 @@ function App() {
 
   // Begin listening for event
   contract.on("guessed", (player, guess, result) => {
-    //getHistoric()
-    handleEvent(guess, result)
+    getHistoric()
+    //handleEvent(guess, result)
   });
 
   async function enforceNetwork(current) {
@@ -106,12 +131,19 @@ function App() {
     signer = await provider.getSigner()
 
     try{
-      const wrd = finalWord.toLowerCase()
+      let wrd = ''
+      for(let i = 0; i < finalWord.length; i++) {
+        wrd += finalWord[i].value.toLowerCase()
+      }
       let nums = []
       for(let i = 0; i < wrd.length; i++) {
         nums.push(toNumber.indexOf(wrd[i]))
       }
       const tx = await contract.connect(signer).guess(nums)
+      setUserMessage(`Checking your answer on the blockchain 🤔`)
+      await tx.wait(5)
+      setUserMessage(`Transaction complete! Your results should show below`)
+      //document.getElementById('word').value = ''
     } catch(error) {
       if(error.message.includes('(')) {
         let message = error.message
@@ -123,27 +155,54 @@ function App() {
       }
     }
   }
+
+  function handleTyping() {
+    let current = document.getElementById('word').value
+    let temp = []
+    for(let i = 0; i < current.length; i++) {
+      const result = attempts.current.find((obj) => obj.guess === current[i]);
+      let color
+      if(result) {
+        color = result.result
+      }
+      temp.push({value: current[i], result: color !== 0 ? 3 : 0 })
+    }
+
+    setFinalWord(temp)
+  }
+  function handlePaste(e) {
+    e.preventDefault();
+  };
   
   return (
     <div className="App">
       <div>
-        <h1 style={{color: 'whitesmoke'}}>WORDL3</h1>
+        <h1 className='text-glow' style={{color: 'blueviolet'}}>WORDL3</h1>
         <p style={{color: 'whitesmoke'}}>Guess the 5 letter word of the day in 6 tries or less!</p>
+        <h3 style={{color: 'blueviolet'}}>{userMessage}</h3>
         <span style={{color: 'red'}}>{error}</span><span style={{color: 'red'}} onClick={() => setError('')}>{error != '' ? '   x' : ''}</span>
-        <div dangerouslySetInnerHTML={{__html: htmlRef.current}}></div>
-      </div>
-      <div>
+        
+        <div className='word glow'>
+        {/* dangerouslySetInnerHTML={{__html: htmlRef.current}} */}
+          {attempts.current.map((item, index) => (
+            <p className={'card btn-glow'} style={{background: colors[item.result]}} key={index}>{item.guess.toUpperCase()}</p>
+          ))}
+        </div>
+        <div className='word glow'>
+          {finalWord.map((item, index) => (
+            <p className={'card btn-glow'} style={{background: colors[item.result]}} key={index}>{item.value.toUpperCase()}</p>
+          ))}
+        </div>
+        {/* <h2 className='text-glow'>{finalWord}</h2> */}
 
-      </div>
-      <div className="card">
+      </div> 
+      <div className='bottom-element'>
         <form onSubmit={(e) => guess(e)}>
-          <br/><div style={{color: 'white'}}>{finalWord.toUpperCase()}</div><br/>
-          <input type='text' id='word' onChange={() => setFinalWord(document.getElementById('word').value)} maxLength="5"></input>
-          <br/><button type='submit'>Submit</button>
-          <br/><button onClick={e => init(e)}>Login</button>
+          <br/><button className='btn btn-gradient-border btn-glow' type='submit'>Submit</button>
+          <button className='btn btn-gradient btn-glow' onClick={e => init(e)}>Connect</button><br/>
+          <input type='text' id='word' onChange={() => handleTyping()} onPaste={(e) => handlePaste(e)} maxLength="5" ref={inputRef} onBlur={handleBlur}></input>
         </form>
       </div>
-      
     </div>
   )
 }
