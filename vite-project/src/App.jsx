@@ -7,24 +7,27 @@ const contractAddress = {
   'polygon': '0x2b3291ADBe63A94C3befaaa3645bC646d962EcCa',
   'goerli': '0x1B86aAA637AeC2fe541Ed64d26aA4D0698605D09'
 }
-let provider, signer, contract
+let provider, signer, contract = null
 
 function App() {
-
-  provider = new ethers.BrowserProvider(window.ethereum)
-  contract = new ethers.Contract(contractAddress['polygon'], abi, provider)
   const [userAddress, setUserAddress] = useState('')
   const [outputHTML, setOutputHTML] = useState('')
   const [finalWord, setFinalWord] = useState([])
   const [error, setError] = useState('')
   const [att, setAtt] = useState([])
   const [userMessage, setUserMessage] = useState(`Begin typing when you're ready ${String.fromCodePoint(0x1F600)}`)
-  console.log( String.fromCodePoint(0x1F600))
+
   const attempts = useRef([])
   const htmlRef = useRef(outputHTML)
   const accountedRef = useRef([])
-
   const inputRef = useRef(null);
+
+  if(window.etehreum !== null) {
+    provider = new ethers.BrowserProvider(window.ethereum)
+    contract = new ethers.Contract(contractAddress['polygon'], abi, provider)
+  } else {
+
+  }
 
   useEffect(() => {
     inputRef.current.focus();
@@ -36,12 +39,17 @@ function App() {
 
   useEffect(() => {
     // Call your function here
-    init();
+    if(window.ethereum == null) {
+      setUserMessage('Browser wallet not installed 😿')
+    } else {
+      init()
+    }    
   }, []); 
 
   async function getHistoric(e) {
-    console.log('gh')
     if(e)e.preventDefault()
+
+    if(userAddress === '') return;
     let filter = contract.filters.guessed(await signer.getAddress())
     let events = await contract.queryFilter(filter)
     let endTime = parseInt(await contract.endTime())
@@ -59,8 +67,10 @@ function App() {
     if(e) e.preventDefault()
 
     if(window.ethereum == null) {
-      alert('Browser wallet not installed')
-      throw 'Browser wallet not installed'
+      setUserMessage('Browser wallet not installed')
+      return;
+      //alert('Browser wallet not installed')
+      //throw 'Browser wallet not installed'
     }
 
     await provider.send("eth_requestAccounts", [])
@@ -177,7 +187,7 @@ function App() {
   return (
     <div className="App">
       <div>
-        <h1 className='text-glow' style={{color: 'blueviolet'}}>WORDL3</h1>
+        <h1 className='text-glow' style={{color: 'blueviolet'}}>3RDLE</h1>
         <p style={{color: 'whitesmoke'}}>Guess the 5 letter word of the day in 6 tries or less!</p>
         <h3 style={{color: 'blueviolet'}}>{userMessage}</h3>
         <span style={{color: 'red'}}>{error}</span><span style={{color: 'red'}} onClick={() => setError('')}>{error != '' ? '   x' : ''}</span>
