@@ -4,7 +4,7 @@ import { ethers } from 'ethers'
 import {abi, toNumber, colors} from './config' 
 
 const contractAddress = {
-  'polygon': '0x2b3291ADBe63A94C3befaaa3645bC646d962EcCa',
+  'polygon': '0x498679E45bbc1Ca23f3D321abAF3526ebBe59696',
   'goerli': '0x1B86aAA637AeC2fe541Ed64d26aA4D0698605D09'
 }
 let provider, signer, contract = null
@@ -16,6 +16,7 @@ function App() {
   const [error, setError] = useState('')
   const [att, setAtt] = useState([])
   const [userMessage, setUserMessage] = useState(`Begin typing when you're ready ${String.fromCodePoint(0x1F600)}`)
+  const [displayOS, setDisplayOS] = useState('non')
 
   const attempts = useRef([])
   const htmlRef = useRef(outputHTML)
@@ -112,8 +113,10 @@ function App() {
   }
 
   // Begin listening for event
-  contract.on("guessed", (player, guess, result) => {
-    getHistoric()
+  contract.on("guessed",async (player, guess, result) => {
+    if(player === await signer.getAddress()) {
+      getHistoric()
+    }
     //handleEvent(guess, result)
   });
 
@@ -144,9 +147,8 @@ function App() {
       }
       const tx = await contract.connect(signer).guess(nums)
       setUserMessage(`Checking your answer on the blockchain 🤔`)
-      await tx.wait(5)
-      setUserMessage(`Transaction complete! Your results should show below 👇`)
-      //document.getElementById('word').value = ''
+      await tx.wait(1)
+      setUserMessage(`Transaction complete! Your results should show below soon👇`)
     } catch(error) {
       if(error.message.includes('(')) {
         let message = error.message
@@ -183,6 +185,7 @@ function App() {
         <h1 className='text-glow' style={{color: 'blueviolet', backgroundImage: './ape.png'}}>3RDLE</h1>
         <p style={{color: 'whitesmoke'}}>Guess the 5 letter word of the day in 6 tries or less!</p>
         <h3 style={{color: 'blueviolet'}}>{userMessage}</h3>
+        <h4 style={{color: 'blueviolet'}}><a href='https://opensea.io/account' target='_bank'>{userMessage === 'You Won!! 🥳' ? 'View your prize on Opensea' : ''}</a></h4>
         {/* <span style={{color: 'red'}}>{error}</span><span style={{color: 'red'}} onClick={() => setError('')}>{error != '' ? '   x' : ''}</span> */}
         
         <div className='word glow'>
