@@ -12,3 +12,4 @@ Play it [here](https://www.3rdle.xyz/)
     * Yellow: this letter is in the word, but it is in the wrong place
     * Green: this letter is in the word and in the correct place
 * If you don't get it right in six tries, the word will not be revealed. But no worries, try again tomorrow!
+* If you do win, you get a free NFT with an image that represents how many tries it took you to win.
