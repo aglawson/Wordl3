@@ -22,12 +22,9 @@ function App() {
   const accountedRef = useRef([])
   const inputRef = useRef(null);
 
-  if(window.etehreum !== null) {
-    provider = new ethers.BrowserProvider(window.ethereum)
-    contract = new ethers.Contract(contractAddress['polygon'], abi, provider)
-  } else {
-
-  }
+  provider = new ethers.BrowserProvider(window.ethereum)
+  contract = new ethers.Contract(contractAddress['polygon'], abi, provider)
+  
 
   useEffect(() => {
     inputRef.current.focus();
@@ -39,17 +36,13 @@ function App() {
 
   useEffect(() => {
     // Call your function here
-    if(window.ethereum == null) {
-      setUserMessage('Browser wallet not installed 😿')
-    } else {
-      init()
-    }    
+    init()
   }, []); 
 
   async function getHistoric(e) {
     if(e)e.preventDefault()
 
-    if(userAddress === '') return;
+    if(userAddress === '') await init();
     let filter = contract.filters.guessed(await signer.getAddress())
     let events = await contract.queryFilter(filter)
     let endTime = parseInt(await contract.endTime())
@@ -67,7 +60,7 @@ function App() {
     if(e) e.preventDefault()
 
     if(window.ethereum == null) {
-      setUserMessage('Browser wallet not installed')
+      setUserMessage('Browser wallet not installed ☠️')
       return;
       //alert('Browser wallet not installed')
       //throw 'Browser wallet not installed'
@@ -152,16 +145,16 @@ function App() {
       const tx = await contract.connect(signer).guess(nums)
       setUserMessage(`Checking your answer on the blockchain 🤔`)
       await tx.wait(5)
-      setUserMessage(`Transaction complete! Your results should show below`)
+      setUserMessage(`Transaction complete! Your results should show below 👇`)
       //document.getElementById('word').value = ''
     } catch(error) {
       if(error.message.includes('(')) {
         let message = error.message
         let index = message.indexOf('(')
         message = message.substr(0, index)
-        setError(message)
+        setUserMessage(message + '😿')
       } else {
-        setError(error.message)
+        setUserMessage(error.message + '😿')
       }
     }
   }
@@ -187,10 +180,10 @@ function App() {
   return (
     <div className="App">
       <div>
-        <h1 className='text-glow' style={{color: 'blueviolet'}}>3RDLE</h1>
+        <h1 className='text-glow' style={{color: 'blueviolet', backgroundImage: './ape.png'}}>3RDLE</h1>
         <p style={{color: 'whitesmoke'}}>Guess the 5 letter word of the day in 6 tries or less!</p>
         <h3 style={{color: 'blueviolet'}}>{userMessage}</h3>
-        <span style={{color: 'red'}}>{error}</span><span style={{color: 'red'}} onClick={() => setError('')}>{error != '' ? '   x' : ''}</span>
+        {/* <span style={{color: 'red'}}>{error}</span><span style={{color: 'red'}} onClick={() => setError('')}>{error != '' ? '   x' : ''}</span> */}
         
         <div className='word glow'>
         {/* dangerouslySetInnerHTML={{__html: htmlRef.current}} */}
