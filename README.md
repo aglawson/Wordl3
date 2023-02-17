@@ -1,7 +1,7 @@
 # 3RDLE
 It's NYTimes' Wordle, but entirely on the blockchain!
 
-Play it [here](https://wordl3-ten.vercel.app/)
+Play it [here](https://www.3rdle.xyz/)
 
 ## Description
 * Every day at 12:00am Pacific Time, a new 5-letter word is generated and entered into the smart contract
