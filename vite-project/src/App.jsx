@@ -13,9 +13,8 @@ function App() {
   const [userAddress, setUserAddress] = useState('')
   const [outputHTML, setOutputHTML] = useState('')
   const [finalWord, setFinalWord] = useState([])
-  const [error, setError] = useState('')
   const [att, setAtt] = useState([])
-  const [userMessage, setUserMessage] = useState(`Begin typing when you're ready ${String.fromCodePoint(0x1F600)}`)
+  const [userMessage, setUserMessage] = useState(`Begin typing when you're ready 🤓`)
   const [displayOS, setDisplayOS] = useState('non')
 
   const attempts = useRef([])
