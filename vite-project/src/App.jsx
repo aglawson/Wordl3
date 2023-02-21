@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import { ethers } from 'ethers'
-import {abi, toNumber, colors} from './config' 
+import {abi, toNumber, colors, wordList} from './config' 
 
 const contractAddress = {
   'polygon': '0x498679E45bbc1Ca23f3D321abAF3526ebBe59696',
@@ -140,6 +140,11 @@ function App() {
       let wrd = ''
       for(let i = 0; i < finalWord.length; i++) {
         wrd += finalWord[i].value.toLowerCase()
+      }
+      
+      if(!wordList.includes(wrd)) {
+        setUserMessage('Word not in word list')
+        return
       }
       let nums = []
       for(let i = 0; i < wrd.length; i++) {
