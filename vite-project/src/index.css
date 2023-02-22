@@ -180,16 +180,30 @@ button:focus-visible {
   grid-template-columns: repeat(5, minmax(25%, auto));
   width: var(--max-width);
   justify-content: center;
-  margin-left: 38%;
+  margin-left: 37.5%;
   max-width: 25%;
 }
 
 .wordMobile {
   display: -ms-inline-grid;
-  grid-template-columns: repeat(5, minmax(25%, auto));
+  grid-template-columns: repeat(5, minmax(100%, auto));
   width: var(--max-width);
   justify-content: center;
   max-width: 100%;
+}
+
+.cardMobile {
+  margin: 0.2rem;
+  padding: 0.75rem;
+  height: 25px;
+  width: 25px;
+  text-align: center;
+  color: rgb(0, 0, 0);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 10px;
 }
 
 .card {

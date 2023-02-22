@@ -203,12 +203,12 @@ function App() {
         <div className={useMobile() ? 'wordMobile glow' : 'word glow'}>
         {/* dangerouslySetInnerHTML={{__html: htmlRef.current}} */}
           {attempts.current.map((item, index) => (
-            <p className={'card btn-glow'} style={{background: colors[item.result]}} key={index}>{item.guess.toUpperCase()}</p>
+            <p className={useMobile() ? 'cardMobile btn-glow' : 'card btn-glow'} style={{background: colors[item.result]}} key={index}>{item.guess.toUpperCase()}</p>
           ))}
         </div>
         <div className={useMobile() ? 'wordMobile glow' : 'word glow'}>
           {finalWord.map((item, index) => (
-            <p className={'card btn-glow'} style={{background: colors[item.result]}} key={index}>{item.value.toUpperCase()}</p>
+            <p className={useMobile() ? 'cardMobile btn-glow' : 'card btn-glow'} style={{background: colors[item.result]}} key={index}>{item.value.toUpperCase()}</p>
           ))}
         </div>
         {/* <h2 className='text-glow'>{finalWord}</h2> */}
