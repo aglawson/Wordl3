@@ -184,6 +184,14 @@ button:focus-visible {
   max-width: 25%;
 }
 
+.wordMobile {
+  display: -ms-inline-grid;
+  grid-template-columns: repeat(5, minmax(25%, auto));
+  width: var(--max-width);
+  justify-content: center;
+  max-width: 100%;
+}
+
 .card {
   margin: 0.2rem;
   padding: 1rem;

@@ -16,7 +16,7 @@ function App() {
   const [att, setAtt] = useState([])
   const [userMessage, setUserMessage] = useState(`Begin typing when you're ready 🤓`)
   const [displayOS, setDisplayOS] = useState('non')
-
+  
   const attempts = useRef([])
   const htmlRef = useRef(outputHTML)
   const accountedRef = useRef([])
@@ -182,6 +182,14 @@ function App() {
   function handlePaste(e) {
     e.preventDefault();
   };
+
+  function useMobile() {
+    if(window.innerWidth < 800) {
+      return true
+    } else {
+      return false
+    }
+  }
   
   return (
     <div className="App">
@@ -192,13 +200,13 @@ function App() {
         <h4 style={{color: 'blueviolet'}}><a href='https://opensea.io/account' target='_bank'>{userMessage === 'You Won!! 🥳' ? 'View your prize on Opensea' : ''}</a></h4>
         {/* <span style={{color: 'red'}}>{error}</span><span style={{color: 'red'}} onClick={() => setError('')}>{error != '' ? '   x' : ''}</span> */}
         
-        <div className='word glow'>
+        <div className={useMobile() ? 'wordMobile glow' : 'word glow'}>
         {/* dangerouslySetInnerHTML={{__html: htmlRef.current}} */}
           {attempts.current.map((item, index) => (
             <p className={'card btn-glow'} style={{background: colors[item.result]}} key={index}>{item.guess.toUpperCase()}</p>
           ))}
         </div>
-        <div className='word glow'>
+        <div className={useMobile() ? 'wordMobile glow' : 'word glow'}>
           {finalWord.map((item, index) => (
             <p className={'card btn-glow'} style={{background: colors[item.result]}} key={index}>{item.value.toUpperCase()}</p>
           ))}
