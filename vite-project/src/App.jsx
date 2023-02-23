@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import { ethers } from 'ethers'
-import {abi, toNumber, colors, wordList} from './config' 
+import {abi, toNumber, colors, wordList} from './config'
+import { TwitterShareButton, TwitterIcon } from 'react-share';
 
 const contractAddress = {
   'polygon': '0x498679E45bbc1Ca23f3D321abAF3526ebBe59696',
@@ -15,7 +16,7 @@ function App() {
   const [finalWord, setFinalWord] = useState([])
   const [att, setAtt] = useState([])
   const [userMessage, setUserMessage] = useState(`Begin typing when you're ready 🤓`)
-  const [displayOS, setDisplayOS] = useState('non')
+  //const [displayOS, setDisplayOS] = useState('none')
   
   const attempts = useRef([])
   const htmlRef = useRef(outputHTML)
@@ -97,6 +98,8 @@ function App() {
 
     if(instances(result, '1') === 5) {
       setUserMessage(`You Won!! 🥳`)
+    } else {
+      setUserMessage(`Transaction complete! Your results should show below 👇`)
     }
   }
 
@@ -152,7 +155,9 @@ function App() {
       const tx = await contract.connect(signer).guess(nums)
       setUserMessage(`Checking your answer on the blockchain 🤔`)
       await tx.wait(1)
-      setUserMessage(`Transaction complete! Your results should show below soon👇`)
+      if(userMessage != `You Won!! 🥳`) {
+        
+      }
     } catch(error) {
       if(error.message.includes('(')) {
         let message = error.message
@@ -199,7 +204,14 @@ function App() {
         <h3 style={{color: 'blueviolet'}}>{userMessage}</h3>
         <h4 style={{color: 'blueviolet'}}><a href='https://opensea.io/account' target='_bank'>{userMessage === 'You Won!! 🥳' ? 'View your prize on Opensea' : ''}</a></h4>
         {/* <span style={{color: 'red'}}>{error}</span><span style={{color: 'red'}} onClick={() => setError('')}>{error != '' ? '   x' : ''}</span> */}
-        
+        <TwitterShareButton
+          url={'https://www.3rdle.xyz'}
+          title={`I guessed the 3rdle word of the day in ${attempts.current.length / 5} tries! Try to beat me -> `}
+          hashtags={['3rdle', 'nft', 'web3game', 'polygon']}
+          style={{display: userMessage == `You Won!! 🥳` ? 'block' : 'none', justifyContent: 'center', marginLeft: '48.75%'}}
+          >
+            <TwitterIcon size={32} round />
+        </TwitterShareButton>
         <div className={useMobile() ? 'wordMobile glow' : 'word glow'}>
         {/* dangerouslySetInnerHTML={{__html: htmlRef.current}} */}
           {attempts.current.map((item, index) => (
@@ -210,6 +222,7 @@ function App() {
           {finalWord.map((item, index) => (
             <p className={useMobile() ? 'cardMobile btn-glow' : 'card btn-glow'} style={{background: colors[item.result]}} key={index}>{item.value.toUpperCase()}</p>
           ))}
+          
         </div>
         {/* <h2 className='text-glow'>{finalWord}</h2> */}
 
