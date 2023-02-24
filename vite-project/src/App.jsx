@@ -124,7 +124,7 @@ function App() {
     //handleEvent(guess, result)
   });
 
-  async function enforceNetwork(current) {
+  async function enforceNetwork() {
     const network = (await provider.getNetwork()).chainId
     if(network !== 137) {
       await window.ethereum.request({
