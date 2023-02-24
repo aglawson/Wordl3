@@ -206,8 +206,8 @@ function App() {
         {/* <span style={{color: 'red'}}>{error}</span><span style={{color: 'red'}} onClick={() => setError('')}>{error != '' ? '   x' : ''}</span> */}
         <TwitterShareButton
           url={'https://www.3rdle.xyz'}
-          title={`I guessed the 3rdle word of the day in ${attempts.current.length / 5} tries! Try to beat me -> `}
-          hashtags={['3rdle', 'nft', 'web3game', 'polygon']}
+          title={`I guessed the 3rdle word of the day in ${attempts.current.length / 5} tries and got a free NFT! Try to beat me -> `}
+          hashtags={['3rdle', 'nft', 'web3game', 'polygon', 'freenft', 'nftgame']}
           style={{display: userMessage == `You Won!! 🥳` ? 'block' : 'none', justifyContent: 'center', marginLeft: '48.75%'}}
           >
             <TwitterIcon size={32} round />
