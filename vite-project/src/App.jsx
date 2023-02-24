@@ -144,10 +144,10 @@ function App() {
         wrd += finalWord[i].value.toLowerCase()
       }
       
-      if(!wordList.includes(wrd)) {
-        setUserMessage('Word not in word list')
-        return
-      }
+      // if(!wordList.includes(wrd)) {
+      //   setUserMessage('Word not in word list')
+      //   return
+      // }
       let nums = []
       for(let i = 0; i < wrd.length; i++) {
         nums.push(toNumber.indexOf(wrd[i]))
