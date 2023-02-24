@@ -5,8 +5,7 @@ import {abi, toNumber, colors, wordList} from './config'
 import { TwitterShareButton, TwitterIcon } from 'react-share';
 
 const contractAddress = {
-  'polygon': '0x498679E45bbc1Ca23f3D321abAF3526ebBe59696',
-  'goerli': '0x1B86aAA637AeC2fe541Ed64d26aA4D0698605D09'
+  'polygon': '0x498679E45bbc1Ca23f3D321abAF3526ebBe59696'
 }
 let provider, signer, contract = null
 
@@ -17,7 +16,6 @@ function App() {
   //const [att, setAtt] = useState([])
   const [userMessage, setUserMessage] = useState(`Begin typing when you're ready 🤓`)
   //const [displayOS, setDisplayOS] = useState('none')
-  
   const attempts = useRef([])
   const htmlRef = useRef(outputHTML)
   const accountedRef = useRef([])
@@ -26,6 +24,7 @@ function App() {
   provider = new ethers.BrowserProvider(window.ethereum)
   contract = new ethers.Contract(contractAddress['polygon'], abi, provider)
   
+  let initialized = false
 
   useEffect(() => {
     inputRef.current.focus();
@@ -36,8 +35,11 @@ function App() {
   };
 
   useEffect(() => {
-    // Call your function here
-    init()
+    if(!initialized) {
+      console.log('init')
+      init()
+      initialized = true
+    }
   }, []); 
 
   async function getHistoric(e) {
