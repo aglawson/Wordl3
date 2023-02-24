@@ -14,7 +14,7 @@ function App() {
   const [userAddress, setUserAddress] = useState('')
   const [outputHTML, setOutputHTML] = useState('')
   const [finalWord, setFinalWord] = useState([])
-  const [att, setAtt] = useState([])
+  //const [att, setAtt] = useState([])
   const [userMessage, setUserMessage] = useState(`Begin typing when you're ready 🤓`)
   //const [displayOS, setDisplayOS] = useState('none')
   
@@ -88,7 +88,7 @@ function App() {
       attempts.current.push({guess: toNumber[guess[i]], result: value})
       html += `<span class='card' style="background-color: ${colors[value]}; padding-right: 2.5%; padding-left: 2.5%; border: 1px; font-size: 200%;">${toNumber[guess[i]]}</span>`
     }
-    setAtt(attempts.current)
+    //setAtt(attempts.current)
     
     html += `<br/>`
     if(!htmlRef.current.includes(html)){
