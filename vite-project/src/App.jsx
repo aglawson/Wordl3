@@ -190,6 +190,11 @@ function App() {
     e.preventDefault();
   };
 
+  if(useMobile() && initialized) {
+    const input = document.getElementById('word');
+    input.focus();
+  }
+
   function useMobile() {
     if(window.innerWidth < 800) {
       return true
@@ -233,11 +238,6 @@ function App() {
         <form onSubmit={(e) => guess(e)}>
           <br/><button className='btn btn-gradient-border btn-glow' type='submit'>Submit</button>
           <button className='btn btn-gradient btn-glow' onClick={e => init(e)}>Connect</button><br/>
-          <br/>
-          <br/>
-          <br/>
-          <br/>
-          <br/>
           <br/>
 
           <input type='text' id='word' onChange={() => handleTyping()} onPaste={(e) => handlePaste(e)} maxLength="5" ref={inputRef} onBlur={handleBlur}></input>
